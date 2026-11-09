@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import photo, searchbar, ico, v_plane, v_car, v_bus %}
+{% block title %}{{ place }} trip plan — NARADA YATRA{% endblock %}
+{% block desc %}Day-wise itinerary for {{ place }} with timings, distances, photos of every stop, hotels, maps, local food and shopping.{% endblock %}
+{% block content %}
+<section class="phero phero--plan" data-parallax-host>
+  <div class="phero__bg" data-parallax="0.2">{{ photo(place, 'India', '') }}</div>
+  <div class="phero__shade"></div>
+  <div class="container phero__inner">
+    <p class="eyebrow enter" style="--d:80ms"><span id="state-label">India</span> · {{ days }}-day plan</p>
+    <h1 class="phero__title enter" style="--d:180ms">{{ place }}</h1>
+    <div class="chips enter" style="--d:280ms"><span class="chip chip--accent">{{ days }} day{{ 's' if days > 1 }}</span><span class="chip" id="travelers-chip">{{ ico('users') }}<span>{{ travelers }} traveler{{ 's' if travelers > 1 }}</span></span><span class="chip" id="season-chip" hidden></span></div>
+    <div class="phero__actions enter" style="--d:380ms">
+      <button id="save-trip" type="button" class="btn btn--primary ripple">{{ ico('star') }}<span>{{ 'Saved to my trips ✓' if saved else 'Save as my trip' }}</span></button>
+      <button type="button" class="btn btn--ghost ripple" data-pdf disabled>{{ ico('download') }}<span>Download PDF</span></button>
+      <a href="#itinerary" class="btn btn--ghost ripple">{{ ico('route') }} Jump to itinerary</a>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="plan-search">{{ searchbar(place, days, travelers) }}</div>
+
+  <div id="plan-loading" class="journey" role="status" aria-live="polite">
+    <div class="journey__card glass-lite">
+      <div class="journey__track">
+        <svg viewBox="0 0 320 100" aria-hidden="true"><path class="journey__path" d="M10 80 C 70 10, 120 100, 170 50 S 260 10, 310 60"/></svg>
+        <span class="journey__veh" data-v="0"><i class="v v0">{{ v_plane() }}</i><i class="v v1">{{ v_car('gSun') }}</i><i class="v v2">{{ v_bus('gBlue') }}</i></span>
+      </div>
+    </div>
+    <p class="journey__msg" data-msgs="Mapping your route…|Choosing the best stops…|Finding local flavours…|Lining up photos for every stop…">Mapping your route…</p>
+  </div>
+  <div id="plan-error" class="errbox" hidden>
+    <p></p>
+    <button id="plan-retry" type="button" class="btn btn--primary ripple">Try again</button>
+  </div>
+
+  <div id="plan" data-place="{{ place }}" data-days="{{ days }}" data-travelers="{{ travelers }}" data-style="{{ style }}"></div>
+
+  <section class="block" id="stay">
+    <div class="block__head" data-reveal>
+      <p class="eyebrow">Where to stay</p>
+      <h2 class="h2">Nearby hotels</h2>
+      <p class="muted">Live from Google Maps — real ratings, reviews and price ranges.</p>
+    </div>
+    <div id="hotels" class="hotels">
+      {% for _ in range(3) %}<div class="hotel__skeleton sk-card"></div>{% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

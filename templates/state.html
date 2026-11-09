@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import photo, searchbar, ico %}
+{% block title %}{{ s.name }} travel guide — NARADA YATRA{% endblock %}
+{% block desc %}Best and most famous places to visit in {{ s.name }}.{% endblock %}
+{% block content %}
+<section class="phero" data-parallax-host>
+  <div class="phero__bg" data-parallax="0.2">{{ photo(s.places[0] if s.places else s.name, '', '') }}</div>
+  <div class="phero__shade"></div>
+  <div class="container phero__inner">
+    <p class="eyebrow enter" style="--d:80ms">{{ s.kind }} · Capital {{ s.capital }}</p>
+    <h1 class="phero__title enter" style="--d:180ms">{{ s.name }}</h1>
+    <p class="lead enter" style="--d:280ms">{{ s.tagline }}</p>
+    <div class="chips enter" style="--d:380ms"><span class="chip chip--accent">{{ s.places|length }} places</span><span class="chip">{{ region_of(s.name)|title }} India</span></div>
+  </div>
+</section>
+<div class="container section">
+  <div data-reveal style="display:flex;justify-content:center;margin-bottom:3rem">{{ searchbar() }}</div>
+  <div class="section__head" data-reveal><p class="eyebrow">Best &amp; famous places</p><h2 class="h2">Where to go in {{ s.name }}</h2></div>
+  <div class="pgrid pgrid--feature">
+    {% for p in s.places %}
+    <a href="{{ url_for('plan', place=p, days=2) }}" class="pcard ripple" data-reveal="zoom" style="--d: {{ (loop.index0 % 4) * 80 }}ms">
+      {{ photo(p, '', '') }}<span class="pcard__shade"></span>
+      {% if loop.index <= 3 %}<span class="badge clay clay--sun">Must visit</span>{% endif %}
+      <span class="pcard__body glass-lite"><strong>{{ p }}</strong><em>Plan 2 days</em></span>
+      <span class="go clay clay--blue">{{ ico('arrow') }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

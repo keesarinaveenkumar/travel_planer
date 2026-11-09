@@ -1,0 +1,252 @@
+{% from "_macros.html" import photo, gallery, ico, mode_ico, v_plane %}
+{% set t = data.totals %}{% set tot = t.total or 1 %}
+{% set ns = namespace(stops=0) %}{% for d in data.days %}{% set ns.stops = ns.stops + d.stops|length %}{% endfor %}
+<div id="plan-meta" data-state="{{ data.state }}" data-season="{{ data.bestSeason }}" data-plan='{{ data|tojson }}' hidden></div>
+
+<nav class="daynav" id="daynav" aria-label="Plan sections">
+  <div class="daynav__inner glass">
+    <a href="#overview" class="daynav__link" data-spy="overview">Overview</a>
+    <a href="#budget" class="daynav__link" data-spy="budget">Budget</a>
+    {% for d in data.days %}<a href="#day-{{ d.day }}" class="daynav__link" data-spy="day-{{ d.day }}">Day {{ d.day }}</a>{% endfor %}
+    {% if data.foods %}<a href="#food" class="daynav__link" data-spy="food">Food</a>{% endif %}
+    {% if data.shopping %}<a href="#shopping" class="daynav__link" data-spy="shopping">Shopping</a>{% endif %}
+    <a href="#packing" class="daynav__link" data-spy="packing">Packing</a>
+    <a href="#offline" class="daynav__link" data-spy="offline">PDF</a>
+    <a href="#stay" class="daynav__link" data-spy="stay">Hotels</a>
+    <span class="daynav__bar"></span>
+  </div>
+</nav>
+
+<section class="block" id="overview" style="padding-top:0">
+  <div class="overview">
+    <div class="overview__text glass-lite" data-reveal>
+      <p class="eyebrow">Overview</p>
+      <p class="lead">{{ data.overview }}</p>
+      <dl class="facts">
+        <div class="clay clay--blue"><dt>Best time</dt><dd>{{ data.bestSeason or '—' }}</dd></div>
+        <div class="clay clay--teal"><dt>Length</dt><dd>{{ data.days|length }} day{{ 's' if data.days|length != 1 }}</dd></div>
+        <div class="clay clay--sun"><dt>Stops</dt><dd>{{ ns.stops }}</dd></div>
+      </dl>
+    </div>
+    <div class="overview__map glass-lite" data-reveal="right"><iframe title="Map of {{ data.place }}" src="{{ map_src(data.place ~ ', ' ~ data.state ~ ', India', 12) }}" loading="lazy"></iframe></div>
+  </div>
+  {% if data.mustVisit %}
+  <h3 class="h3" style="margin:2.2rem 0 1rem" data-reveal>Must-visit</h3>
+  <div class="musts">
+    {% for m in data.mustVisit %}
+    <div class="must glass-lite" data-reveal="zoom" style="--d: {{ (loop.index0 % 6) * 70 }}ms">{{ photo(m, data.place, '') }}<p>{{ m }}</p></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+<section class="block" id="budget" style="padding-top:0">
+  <div class="tbudget glass-lite" data-budget data-reveal="zoom" data-model='{{ model|tojson }}' data-n="{{ est.travelers }}" data-style="{{ tier }}">
+    <header class="tbudget__head">
+      <p class="eyebrow">Estimated trip budget</p>
+      <h2 class="h2">What {{ place }} may cost you</h2>
+      <p class="muted">Typical costs for {{ model.label }}, gathered from Google results and travel blogs. Change the group size or travel style to see how the budget moves.</p>
+    </header>
+
+    <div class="tbudget__controls">
+      <div class="stepper" role="group" aria-label="Number of travelers">
+        <span class="stepper__label">{{ ico('users') }} Travelers</span>
+        <div class="stepper__ctl">
+          <button type="button" class="stepper__btn clay clay--soft" data-n-dec aria-label="One fewer traveler">{{ ico('minus') }}</button>
+          <output class="stepper__val" data-n-out aria-live="polite">{{ est.travelers }}</output>
+          <button type="button" class="stepper__btn clay clay--soft" data-n-inc aria-label="One more traveler">{{ ico('plus') }}</button>
+        </div>
+      </div>
+      <div class="seg" role="radiogroup" aria-label="Travel style">
+        <span class="seg__lens" aria-hidden="true"></span>
+        {% for t in TIERS %}<button type="button" class="seg__btn{{ ' is-on' if t == tier }}" role="radio" aria-checked="{{ 'true' if t == tier else 'false' }}" data-style="{{ t }}" data-note="{{ TIER_NOTES[t] }}"><b>{{ TIER_LABELS[t] }}</b><small>{{ TIER_SHORT[t] }}</small></button>{% endfor %}
+      </div>
+      <p class="seg__note" data-seg-note>{{ TIER_NOTES[tier] }}</p>
+    </div>
+
+    <div class="tbudget__main">
+      <div class="tbudget__figure">
+        <p class="tbudget__label">Estimated per person</p>
+        <strong class="tbudget__pp grad-text" data-pp>{{ inr(est.per_person) }}</strong>
+        <p class="tbudget__range">Typical range <b data-range>{{ inr(est.low) }} – {{ inr(est.high) }}</b></p>
+        <ul class="tbudget__facts">
+          <li>{{ ico('users') }}<span><span data-n-text>{{ est.travelers }} traveler{{ 's' if est.travelers > 1 }}</span> · <b data-group>{{ inr(est.group) }}</b> in total</span></li>
+          <li>{{ ico('clock') }}<span><b data-perday>{{ inr(est.per_day) }}</b> per person per day</span></li>
+        </ul>
+      </div>
+      <div class="tbudget__break">
+        <div class="tbudget__bar" aria-hidden="true">
+          {% for key in ['stay', 'food', 'local', 'entry', 'buffer'] %}<span class="bd-{{ key }}" data-bar="{{ key }}" style="--w: {{ (est.parts[key] * 100 / est.total)|round(1) if est.total else 0 }}%"></span>{% endfor %}
+        </div>
+        <ul class="tbudget__legend">
+          {% for key, label in [('stay', 'Stay'), ('food', 'Food'), ('local', 'Local transport'), ('entry', 'Entry & activities'), ('buffer', 'Buffer (10%)')] %}
+          <li data-part="{{ key }}"><i class="dot bd-{{ key }}"></i><span>{{ label }}</span><b data-val>{{ inr(est.parts[key]) }}</b><em data-pct>{{ (est.parts[key] * 100 / est.total)|round|int if est.total else 0 }}%</em></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <p class="tbudget__caption" role="note">{{ ico('info') }}<span><b>The budget per person is not accurate.</b> It is only an estimate and can change according to the traveler — the season, how you travel, where you stay and what you buy. Getting to and from {{ place }} is not included.</span></p>
+
+    <details class="tbudget__how">
+      <summary>How this estimate is made</summary>
+      <div class="tbudget__how-body">
+        <ul>
+          <li><b>Stay</b> — {{ model.nights }} night{{ 's' if model.nights != 1 }}. Rooms are shared by 2 travelers, so bigger groups pay less each; a solo traveler pays for a whole room (or a cheaper single or dorm bed). A room costs about <b data-rate="stay"></b> a night.</li>
+          <li><b>Food</b> — three meals plus snacks, about <b data-rate="food"></b> per person per day.</li>
+          <li><b>Local transport</b> — the rides in your itinerary plus daily hotel transfers. Cabs and autos are split between up to 4 travelers; buses, trains and flights are paid per person.</li>
+          <li><b>Entry &amp; activities</b> — ticket prices from your itinerary (Indian-citizen rates).</li>
+          <li><b>Buffer</b> — 10% for shopping, tips and small surprises.</li>
+        </ul>
+        <p class="muted">Rates for {{ model.label }} were checked against these pages:</p>
+        <ul class="sources">
+          {% for s in sources %}<li><a href="{{ s.url }}" target="_blank" rel="noopener noreferrer"><b>{{ s.title }}</b><span>{{ s.site }} {{ ico('external') }}</span></a></li>{% endfor %}
+        </ul>
+      </div>
+    </details>
+
+    <div class="tbudget__guides">
+      <div class="tbudget__guides-head">
+        <h3 class="h3">Compare with travel blogs</h3>
+        <a class="btn btn--ghost ripple" href="{{ google_url }}" target="_blank" rel="noopener noreferrer">{{ ico('search') }} Search Google for {{ place }} budgets {{ ico('external') }}</a>
+      </div>
+      {% if live_guides %}<div id="guides" class="guides" data-place="{{ place }}"><span class="sk-card"></span><span class="sk-card"></span></div>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="block" id="itinerary">
+  <div class="block__head" data-reveal>
+    <p class="eyebrow">Itinerary</p>
+    <h2 class="h2">Day by day, stop by stop</h2>
+    <p class="muted">Stops are ordered by distance to save travel time. Every stop has a photo gallery — tap any photo to see the place before you visit.</p>
+  </div>
+
+  {% for d in data.days %}
+  <div class="day" id="day-{{ d.day }}">
+    <header class="day__head" data-reveal>
+      <span class="day__no">{{ '%02d'|format(d.day) }}</span>
+      <div><p class="eyebrow">Day {{ d.day }}</p><h3 class="h3">{{ d.title }}</h3></div>
+      <span class="chip chip--accent">{{ d.stops|length }} stops · {{ inr(d.total) }}</span>
+    </header>
+    <ol class="timeline" data-timeline>
+      <span class="timeline__line" aria-hidden="true"><span class="timeline__fill"></span></span>
+      <span class="timeline__car clay clay--blue" aria-hidden="true">{{ ico('car') }}</span>
+      {% for st in d.stops %}
+      {% set here = st.name ~ ', ' ~ data.place ~ ', India' %}
+      <li class="stop" data-stop data-reveal="left">
+        <span class="stop__node clay clay--soft">{{ loop.index }}</span>
+        <article class="stop__card glass-lite">
+          <header>
+            <div class="stop__time">{{ ico('clock') }} {{ st.time }} <span>· about {{ st.durationHrs }} h</span></div>
+            <h4 class="stop__name">{{ st.name }}</h4>
+          </header>
+          <p class="stop__note">{{ st.note }}</p>
+          <div class="chips">
+            {% if not loop.first %}<span class="chip">{{ mode_ico(st.travel) }} {{ st.distanceKm }} km · {{ st.travel }}</span>{% endif %}
+            <span class="chip">Entry {{ inr(st.entryFee) if st.entryFee else 'Free' }}</span>
+            <span class="chip">Transport {{ inr(st.transportCost) }}</span>
+            <span class="chip">Meals {{ inr(st.mealCost) }}</span>
+          </div>
+          {{ gallery(here, st.name, st.name, 5) }}
+          {% if loop.first %}
+            {% set label = 'Show on map' %}{% set src = map_src(here, 14) %}
+          {% else %}
+            {% set label = 'Show route from previous stop' %}{% set src = dir_src(d.stops[loop.index0 - 1].name ~ ', ' ~ data.place ~ ', India', here) %}
+          {% endif %}
+          <button type="button" class="maptoggle glass-lite ripple" data-map-src="{{ src }}" data-label="{{ label }}" aria-expanded="false">{{ ico('map') }}<span>{{ label }}</span></button>
+          <div class="maptoggle__panel"><div class="maptoggle__inner"></div></div>
+        </article>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endfor %}
+</section>
+
+{% if data.foods %}
+<section class="block" id="food">
+  <div class="block__head" data-reveal>
+    <p class="eyebrow">Taste of {{ data.place }}</p>
+    <h2 class="h2">Famous local food</h2>
+    <p class="muted">See each dish and where to find it before you go.</p>
+  </div>
+  <div class="cards2">
+    {% for f in data.foods %}
+    <article class="fcard glass-lite" data-reveal style="--d: {{ (loop.index0 % 2) * 90 }}ms">
+      <div class="fcard__top"><span class="fcard__no clay clay--sun">{{ '%02d'|format(loop.index) }}</span><div><h3>{{ f.name }}</h3><p class="where">{{ ico('pin') }} {{ f.where }}</p></div></div>
+      <p>{{ f.description }}</p>
+      {{ gallery(f.where ~ ', ' ~ data.place ~ ', India', f.name, f.name, 4) }}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if data.shopping %}
+<section class="block" id="shopping">
+  <div class="block__head" data-reveal>
+    <p class="eyebrow">Bring something home</p>
+    <h2 class="h2">Where to shop</h2>
+    <p class="muted">Browse the markets in photos first, then go with a plan.</p>
+  </div>
+  <div class="cards2">
+    {% for s in data.shopping %}
+    <article class="fcard glass-lite" data-reveal style="--d: {{ (loop.index0 % 2) * 90 }}ms">
+      <div class="fcard__top"><span class="fcard__no clay clay--teal">{{ '%02d'|format(loop.index) }}</span><div><h3>{{ s.area }}</h3></div></div>
+      <p class="buy"><b>Buy:</b> {{ s.buy }}</p>
+      <p>{{ s.tip }}</p>
+      {{ gallery(s.area ~ ', ' ~ data.place ~ ', India', s.area, s.area, 4) }}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if data.tips %}
+<section class="block">
+  <div class="block__head" data-reveal><p class="eyebrow">Good to know</p><h2 class="h2">Travel tips</h2></div>
+  <ul class="tips">
+    {% for tip in data.tips %}<li class="glass-lite" data-reveal style="--d: {{ (loop.index0 % 4) * 70 }}ms"><span class="ti clay clay--blue">{{ ico('bulb') }}</span><span>{{ tip }}</span></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% set pack_total = packing|sum(attribute='items', start=[])|length %}
+<section class="block" id="packing">
+  <div class="block__head" data-reveal>
+    <p class="eyebrow">Be ready</p>
+    <h2 class="h2">Smart packing checklist</h2>
+    <p class="muted">Tailored to {{ place }}{% if data.bestSeason %} and its best season ({{ data.bestSeason }}){% endif %}. Your ticks are saved on this device.</p>
+  </div>
+  <div class="pack glass-lite" data-pack data-key="narada-pack:{{ place|lower }}" data-reveal="zoom">
+    <div class="pack__top">
+      <div class="pack__progress">
+        <span class="pack__bar" aria-hidden="true"><i data-pack-fill></i><span class="pack__plane">{{ v_plane() }}</span></span>
+        <p><b data-pack-count>0</b> of <b data-pack-total>{{ pack_total }}</b> packed <span class="pack__msg" data-pack-msg></span></p>
+      </div>
+      <button type="button" class="btn btn--ghost ripple" data-pack-reset>Reset</button>
+    </div>
+    <div class="pack__groups">
+      {% for g in packing %}
+      <fieldset class="pack__group">
+        <legend>{{ g.title }}</legend>
+        {% for it in g['items'] %}
+        <label class="pack__item"><input type="checkbox" data-pack-id="{{ it.id }}"><span class="pack__box" aria-hidden="true">{{ ico('check') }}</span><span class="pack__txt"><b>{{ it.label }}</b>{% if it.note %}<small>{{ it.note }}</small>{% endif %}</span></label>
+        {% endfor %}
+      </fieldset>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="block" id="offline">
+  <div class="offline glass-lite" data-reveal="zoom">
+    <div class="offline__txt">
+      <p class="eyebrow">Take it with you</p>
+      <h2 class="h2">Download your plan as a PDF</h2>
+      <p class="muted">The whole plan in one file — itinerary with photos and map links, budget, food, shopping, tips, your packing checklist and hotels. Keep it on your phone and use it offline, without opening the planner again.</p>
+    </div>
+    <button type="button" class="btn btn--primary ripple" data-pdf>{{ ico('download') }}<span>Download PDF</span></button>
+  </div>
+</section>

@@ -1,0 +1,7 @@
+{% for g in results %}
+<a href="{{ g.url }}" target="_blank" rel="noopener noreferrer" class="guide glass-lite ripple" data-reveal style="--d: {{ loop.index0 * 80 }}ms">
+  <small>{{ g.site }}</small>
+  <strong>{{ g.title }}</strong>
+  <span>{{ g.snippet }}</span>
+</a>
+{% endfor %}

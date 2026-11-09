@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import ico, v_car, v_bus %}
+{% block title %}Page not found — NARADA YATRA{% endblock %}
+{% block content %}
+<div class="notfound">
+  <div>
+    <b class="grad-text">404</b>
+    <h1 class="h3" style="margin-top:.5rem">This road leads nowhere — yet.</h1>
+    <p class="muted" style="margin:.7rem 0 1.5rem">The page you're looking for doesn't exist or has moved.</p>
+    <a href="{{ url_for('index') }}" class="btn btn--primary ripple">Back to the start {{ ico('arrow') }}</a>
+  </div>
+  <div class="road" aria-hidden="true" style="left:0;right:0">
+    <span class="veh-drive lane-top drive-l" style="--t:22s;--dl:-8s;--static:60vw">{{ v_bus('gTeal') }}</span>
+    <span class="veh-drive lane-bot drive-r" style="--t:14s;--dl:-3s;--static:25vw">{{ v_car('gSun') }}</span>
+  </div>
+</div>
+{% endblock %}

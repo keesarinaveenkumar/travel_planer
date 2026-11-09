@@ -1,0 +1,82 @@
+{# ---- inline icons ---- #}
+{% macro ico(name, cls='') -%}
+{%- set P = {
+  'search': '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  'camera': '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  'pin': '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  'clock': '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  'arrow': '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  'route': '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8"/>',
+  'map': '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  'x': '<path d="M6 6l12 12M18 6 6 18"/>',
+  'left': '<path d="m15 5-7 7 7 7"/>',
+  'right': '<path d="m9 5 7 7-7 7"/>',
+  'up': '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  'bulb': '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>',
+  'star': '<path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
+  'plane': '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+  'car': '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+  'bus': '<path d="M8 6v6M15 6v6M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>',
+  'train': '<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l2-4M15 21l-2-4"/><circle cx="9" cy="14" r=".6"/><circle cx="15" cy="14" r=".6"/>',
+  'walk': '<circle cx="13" cy="4" r="2"/><path d="m12 7-3 4 3 3v6M12 14l4 2M9 11l-3 1M15 8l3 3"/>',
+  'info': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r=".6"/>',
+  'users': '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><path d="M16 4.8a3.2 3.2 0 0 1 0 6.4M18 14.4c1.9.8 3 2.7 3 5.6"/>',
+  'check': '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  'plus': '<path d="M12 5v14M5 12h14"/>',
+  'minus': '<path d="M5 12h14"/>',
+  'external': '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  'bag': '<path d="M6 8h12l1 12H5z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+  'download': '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'
+} -%}
+<svg class="ico {{ cls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ P[name]|safe }}</svg>
+{%- endmacro %}
+
+{# ---- one lazy-loaded photo (Google Maps, Wikipedia fallback) ---- #}
+{% macro photo(name, ctx='', cls='') -%}
+<div class="ph {{ cls }}" data-name="{{ name }}" data-photo="{{ (name ~ ', ' ~ ctx) if ctx else (name ~ ', India') }}"><span class="ph__skeleton"></span></div>
+{%- endmacro %}
+
+{# ---- photo gallery with full-screen viewer (day stops, food, shopping — never hotels) ---- #}
+{% macro gallery(query, name, label, n=5) -%}
+<section class="gallery" data-gallery data-q="{{ query }}" data-name="{{ name }}" data-label="{{ label }}" data-n="{{ n }}" aria-label="Photos of {{ label }}">
+  <header class="gallery__head"><span class="gallery__title">{{ ico('camera') }} Photos</span><span data-count-label>Finding photos…</span></header>
+  <div class="gallery__grid is-loading"><span class="sk"></span><span class="sk"></span><span class="sk"></span></div>
+</section>
+{%- endmacro %}
+
+{% macro searchbar(initial='', days=3, travelers=2) -%}
+<form action="{{ url_for('plan') }}" method="get" class="search searchbar glass" autocomplete="off" role="search">
+  <div class="search__field">
+    {{ ico('search') }}
+    <input name="place" value="{{ initial }}" minlength="2" required aria-label="Search a place in India" placeholder="Try Hampi, Munnar, Jaisalmer…">
+  </div>
+  <div class="search__controls">
+    <label class="search__sel"><span class="sr-only">Trip length</span>
+      <select name="days">{% for d in range(1, 8) %}<option value="{{ d }}" {{ 'selected' if d == days }}>{{ d }} day{{ 's' if d > 1 }}</option>{% endfor %}</select>
+    </label>
+    <label class="search__sel"><span class="sr-only">Number of travelers</span>
+      <select name="travelers">{% for n in range(1, 11) %}<option value="{{ n }}" {{ 'selected' if n == travelers }}>{{ n }} traveler{{ 's' if n > 1 }}</option>{% endfor %}</select>
+    </label>
+    <button class="btn btn--primary ripple" type="submit">Plan trip {{ ico('arrow') }}</button>
+  </div>
+  <div class="suggest" hidden></div>
+</form>
+{%- endmacro %}
+
+{# ---- icon that matches a stop's travel text ---- #}
+{% macro mode_ico(text) -%}
+{{ ico(travel_mode(text)) }}
+{%- endmacro %}
+
+{# ---- vehicle illustrations: flat + puffy, wheels spin via .wheel ---- #}
+{% macro v_plane() -%}
+<svg class="veh veh--plane" viewBox="0 0 64 28" aria-hidden="true"><path d="M2 14c0-2.4 3-4 8-4h38c8 0 14 2.2 14 4s-6 4-14 4H10c-5 0-8-1.6-8-4z" style="fill:var(--pf,#fff)"/><path d="M30 10 17 1.5h6.5L44 10z" style="fill:var(--pw,#e4efff)"/><path d="M30 18l-13 8.5h6.5L44 18z" style="fill:var(--pw,#e4efff)"/><path d="M9 10 3.5 4.5H9l7 5.5zM9 18l-5.5 5.5H9l7-5.5z" style="fill:var(--pt,#cfe0ff)"/><path d="M49 12.4h7" stroke="#8fa2ff" stroke-width="1.8" stroke-linecap="round"/></svg>
+{%- endmacro %}
+
+{% macro v_car(grad='gSun') -%}
+<svg class="veh veh--car" viewBox="0 0 84 40" aria-hidden="true"><path d="M7 32c-2.6 0-4.2-1.6-4.2-4.2v-4c0-3 2-5.2 5-5.8l10-2.2 9-8.4c1.2-1.1 2.8-1.8 4.4-1.8h17c2 0 3.8 1 5 2.6l7 8.2 9 .8c2.8.3 4.6 2.4 4.6 5.2v5.6c0 2.6-1.6 4-4.2 4z" fill="url(#{{ grad }})"/><path d="M27 18.5l7-7.6c.6-.6 1.4-1 2.3-1H47c.9 0 1.7.4 2.3 1l6.2 7.6z" fill="url(#gGlass)"/><path d="M9 21c8-2 21-3 31-3" stroke="rgba(255,255,255,.6)" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="79" cy="23" r="2.2" fill="#fff6c9"/><g class="wheel"><circle cx="22" cy="32" r="7.5" fill="#15112f"/><circle cx="22" cy="32" r="3.2" fill="#d5dafd"/><path d="M22 27v10M17 32h10" stroke="#8a90c8" stroke-width="1.4"/></g><g class="wheel"><circle cx="62" cy="32" r="7.5" fill="#15112f"/><circle cx="62" cy="32" r="3.2" fill="#d5dafd"/><path d="M62 27v10M57 32h10" stroke="#8a90c8" stroke-width="1.4"/></g></svg>
+{%- endmacro %}
+
+{% macro v_bus(grad='gBlue') -%}
+<svg class="veh veh--bus" viewBox="0 0 124 48" aria-hidden="true"><path d="M9 4h95c6 0 10 3 12 8l5 14c.6 1.8 1 3.4 1 5v3c0 2-1.4 3.4-3.4 3.4H7C4.8 37.4 3 35.6 3 33.4V10C3 6.7 5.7 4 9 4z" fill="url(#{{ grad }})"/><rect x="11" y="10" width="17" height="13" rx="3.5" fill="url(#gGlass)"/><rect x="31" y="10" width="17" height="13" rx="3.5" fill="url(#gGlass)"/><rect x="51" y="10" width="17" height="13" rx="3.5" fill="url(#gGlass)"/><rect x="71" y="10" width="17" height="13" rx="3.5" fill="url(#gGlass)"/><path d="M93 10h10c3 0 5 1.6 6.200 4.200L112 23H93z" fill="url(#gGlass)"/><path d="M3 28h118" stroke="rgba(255,255,255,.5)" stroke-width="2"/><path d="M11 6.500h84" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round"/><circle cx="119" cy="31" r="2.300" fill="#fff6c9"/><g class="wheel"><circle cx="30" cy="39" r="8" fill="#15112f"/><circle cx="30" cy="39" r="3.400" fill="#d5dafd"/><path d="M30 33v12M24 39h12" stroke="#8a90c8" stroke-width="1.400"/></g><g class="wheel"><circle cx="92" cy="39" r="8" fill="#15112f"/><circle cx="92" cy="39" r="3.400" fill="#d5dafd"/><path d="M92 33v12M86 39h12" stroke="#8a90c8" stroke-width="1.400"/></g></svg>
+{%- endmacro %}

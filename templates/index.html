@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% from "_macros.html" import photo, searchbar, ico, v_plane, v_car, v_bus %}
+{% block title %}NARADA YATRA — Smart Travel Planner for India{% endblock %}
+{% block desc %}Plan day-by-day trips across every Indian state: itineraries, photos of every stop, hotels, maps, local food and shopping.{% endblock %}
+{% block content %}
+<section class="hero" id="start" data-parallax-host data-spatial>
+  <div class="clouds" data-parallax="0.06" aria-hidden="true">
+    <span class="cloud c1" style="--static:22vw"></span><span class="cloud c2" style="--static:62vw"></span><span class="cloud c3" style="--static:84vw"></span>
+  </div>
+  <div class="sky-planes" aria-hidden="true">
+    <span class="plane plane--a" style="--static:64vw">{{ v_plane() }}</span>
+    <span class="plane plane--b" style="--static:18vw">{{ v_plane() }}</span>
+  </div>
+  <div class="sun" data-parallax="0.32" aria-hidden="true"></div>
+  <svg class="ridge ridge--far" data-parallax="0.18" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 300V190l90-60 110 70 130-110 140 120 120-70 150 90 140-130 130 110 120-60 150 100 160-120V300z"/></svg>
+  <svg class="ridge ridge--mid" data-parallax="0.09" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 300V230l140-70 120 60 160-100 150 110 130-50 170 90 150-120 140 100 140-40 140 70V300z"/></svg>
+  <svg class="ridge ridge--near" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 300V262l180-56 140 40 200-92 170 82 190-44 180 52 180-76 200 40V300z"/></svg>
+
+  <div class="container hero__inner" data-parallax="0.14" data-fade>
+    <p class="pill glass-lite enter" style="--d:80ms"><span class="deva">नारद यात्रा</span><span class="pill__sep">·</span><span>Travel planner for India</span></p>
+    <h1 class="hero__title enter" style="--d:180ms"><span class="line">Plan a journey to</span><span class="line"><span class="rotator" data-rotate="Hampi|Jaipur|Munnar|Varanasi|Leh|Udaipur|Goa">Hampi</span></span></h1>
+    <p class="hero__lead enter" style="--d:320ms">Search any place. Get a day-wise route, then preview every stop, dish and market with real photos — before you ever pack a bag.</p>
+    <div class="enter" style="--d:460ms;width:100%;display:flex;justify-content:center">{{ searchbar() }}</div>
+    <ul class="stats enter" style="--d:620ms">
+      <li class="glass-lite"><b data-count="{{ STATES|length }}">{{ STATES|length }}</b><span>States &amp; UTs</span></li>
+      <li class="glass-lite"><b data-count="{{ place_count }}" data-suffix="+">{{ place_count }}+</b><span>Places to explore</span></li>
+      <li class="glass-lite"><b>1–10</b><span>Day trip plans</span></li>
+    </ul>
+  </div>
+
+  <div class="road" aria-hidden="true">
+    <span class="veh-drive lane-top drive-l" style="--t:26s;--dl:-10s;--static:34vw">{{ v_bus('gBlue') }}</span>
+    <span class="veh-drive lane-top drive-l" style="--t:34s;--dl:-27s;--static:80vw">{{ v_bus('gTeal') }}</span>
+    <span class="veh-drive lane-bot drive-r" style="--t:15s;--dl:-4s;--static:20vw">{{ v_car('gSun') }}</span>
+    <span class="veh-drive lane-bot sm drive-r" style="--t:22s;--dl:-15s;--static:58vw">{{ v_car('gTeal') }}</span>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    {% for _ in range(2) %}{% for s in STATES %}<span>{{ s.name }}</span><i>✦</i>{% endfor %}{% endfor %}
+  </div>
+</div>
+
+{% if history %}
+<section class="section">
+  <div class="container">
+    <div class="section__head" data-reveal>
+      <p class="eyebrow">Recommended for you</p>
+      <h2 class="h2">Picked from your travel style</h2>
+      <p class="muted">Based on {{ history|length - trips }} searches and {{ trips }} saved trips · Your style: {{ interests|join(', ') }}</p>
+      <form method="post" action="{{ url_for('api_clear_history') }}"><button class="muted" style="font-size:.8rem;text-decoration:underline">Clear my history</button></form>
+    </div>
+    <div class="pgrid pgrid--3">
+      {% for r in recs %}
+      <a href="{{ url_for('plan', place=r.place, days=3) }}" class="pcard ripple" data-reveal style="--d: {{ (loop.index0 % 3) * 100 }}ms">
+        {{ photo(r.place, r.state, '') }}<span class="pcard__shade"></span>
+        <span class="pcard__body glass-lite"><small>{{ r.state }}</small><strong>{{ r.place }}</strong><em>{{ r.reason }}</em></span>
+        <span class="go clay clay--blue">{{ ico('arrow') }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section" style="padding-bottom:1rem">
+  <div class="container section__row section__head" data-reveal>
+    <div style="display:grid;gap:.6rem"><p class="eyebrow">Iconic destinations</p><h2 class="h2">Where will the road take you?</h2></div>
+    <div class="rail-btns"><button type="button" class="glass" data-rail-btn="prev" aria-label="Scroll left">{{ ico('left') }}</button><button type="button" class="glass" data-rail-btn="next" aria-label="Scroll right">{{ ico('right') }}</button></div>
+  </div>
+  <div class="rail" data-rail>
+    {% for p in featured %}
+    <a href="{{ url_for('plan', place=p, days=3) }}" class="dest ripple" data-tilt data-reveal="zoom" style="--d: {{ loop.index0 * 90 }}ms">
+      {{ photo(p, '', '') }}<span class="dest__shade"></span>
+      <span class="dest__no">0{{ loop.index }}</span>
+      <span class="dest__body glass-lite"><span><span class="dest__name">{{ p }}</span><small>Plan 3 days</small></span><span class="go clay clay--blue">{{ ico('arrow') }}</span></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section__head" data-reveal><p class="eyebrow">How it works</p><h2 class="h2">From a name to a ready route</h2></div>
+    <div class="steps-wrap" data-route>
+      <div class="route" aria-hidden="true">
+        <span class="route__line"></span><span class="route__fill"></span>
+        <i class="route__dot" data-at="0.1667" style="--at:.1667"></i><i class="route__dot" data-at="0.5" style="--at:.5"></i><i class="route__dot" data-at="0.8333" style="--at:.8333"></i>
+        <span class="route__vehicle">{{ v_plane() }}</span>
+      </div>
+      <ol class="steps">
+        <li class="step glass-lite" data-reveal style="--d:0ms"><span class="step__no">01</span><span class="step__ico clay clay--blue">{{ ico('search') }}</span><h3>Search any place</h3><p>Pick a city, fort, beach or hill station — and how many days you have.</p></li>
+        <li class="step glass-lite" data-reveal style="--d:120ms"><span class="step__no">02</span><span class="step__ico clay clay--teal">{{ ico('route') }}</span><h3>Get your day-wise route</h3><p>Timed stops ordered by distance, with travel time and a per-person cost estimate.</p></li>
+        <li class="step glass-lite" data-reveal style="--d:240ms"><span class="step__no">03</span><span class="step__ico clay clay--sun">{{ ico('camera') }}</span><h3>Preview it with photos</h3><p>See every stop, local dish and market in a photo gallery before you visit.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:1rem">
+  <div class="container">
+    <div class="section__row section__head" data-reveal>
+      <div style="display:grid;gap:.6rem"><p class="eyebrow">Explore by state</p><h2 class="h2">Every state, one tap away</h2></div>
+      <a href="{{ url_for('states') }}" class="btn btn--ghost ripple">View all {{ STATES|length }} {{ ico('arrow') }}</a>
+    </div>
+    <div class="tiles">
+      {% for s in states %}
+      <a href="{{ url_for('state_page', slug=s.slug) }}" class="tile clay clay--soft ripple" data-reveal style="--d: {{ (loop.index0 % 4) * 70 }}ms">
+        <small class="clay clay--blue">{{ '%02d'|format(loop.index) }}</small><strong>{{ s.name }}</strong><span>{{ s.tagline }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="container" style="padding-bottom:2rem">
+  <div class="cta glass-lite" data-reveal="zoom">
+    <p class="eyebrow">Ready when you are</p>
+    <h2 class="h2">Your next journey starts with one search.</h2>
+    <a href="#start" class="btn btn--primary ripple">Plan a trip {{ ico('arrow') }}</a>
+  </div>
+</section>
+{% endblock %}

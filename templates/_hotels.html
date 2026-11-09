@@ -1,0 +1,16 @@
+{% for h in hotels %}
+<a href="{{ h.mapsUrl }}" target="_blank" rel="noreferrer" class="hotel glass-lite ripple" data-reveal style="--d: {{ (loop.index0 % 3) * 100 }}ms">
+  <div class="hotel__img">{% if h.photo %}<img src="{{ h.photo }}" alt="{{ h.name }}" loading="lazy" referrerpolicy="no-referrer">{% endif %}</div>
+  <div class="hotel__body">
+    <div class="hotel__row">
+      {% if h.priceLevel %}<span class="chip chip--accent">{{ h.priceLevel|price_label }}</span>{% endif %}
+      {% if h.rating %}<span style="font-weight:700">★ {{ h.rating }} <small>({{ '{:,}'.format(h.reviews) }})</small></span>{% endif %}
+    </div>
+    <h3>{{ h.name }}</h3>
+    <small>{{ h.address }}</small>
+    <p class="hotel__price">{% if h.priceFrom %}{{ inr(h.priceFrom) }}{{ (' – ' ~ inr(h.priceTo)) if h.priceTo else '+' }} per night{% else %}Price on Google Maps →{% endif %}</p>
+  </div>
+</a>
+{% else %}
+<p class="muted">No hotels found.</p>
+{% endfor %}

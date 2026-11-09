@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.html" import photo, ico %}
+{% block title %}All Indian States & Union Territories — NARADA YATRA{% endblock %}
+{% block desc %}Browse all 28 states and 8 union territories of India and their most famous places.{% endblock %}
+{% block content %}
+<div class="container page-top" style="padding-bottom:3rem">
+  <div class="pagehead">
+    <p class="eyebrow enter">States of India</p>
+    <h1 class="h2 enter" style="--d:100ms;font-size:clamp(2.4rem,7vw,4.6rem)">Pick a state, find the <span class="grad-text">journey</span>.</h1>
+    <p class="muted enter" style="--d:200ms" id="state-count">{{ states|length }} states &amp; territories</p>
+  </div>
+  <div class="filters enter" style="--d:280ms">
+    <input id="state-filter" type="search" placeholder="Filter by name — Kerala, Goa, Ladakh…" aria-label="Filter states">
+    <button class="fchip is-on" type="button" data-region-chip="all">All</button>
+    {% for r in REGIONS %}<button class="fchip" type="button" data-region-chip="{{ r }}">{{ r|title }}</button>{% endfor %}
+  </div>
+  <div class="sgrid">
+    {% for s in states %}
+    <a href="{{ url_for('state_page', slug=s.slug) }}" class="scard glass-lite ripple" data-state-card data-name="{{ s.name|lower }}" data-region="{{ region_of(s.name) }}" data-reveal style="--d: {{ (loop.index0 % 3) * 90 }}ms">
+      {{ photo(s.places[0] if s.places else s.name, '', '') }}
+      <div class="scard__body"><small>{{ s.kind }} · {{ region_of(s.name)|title }}</small><h2>{{ s.name }}</h2><p>{{ s.tagline }} · {{ s.places|length }} places</p></div>
+    </a>
+    {% endfor %}
+  </div>
+  <p class="empty" id="state-empty" hidden>No state matches that filter — try another name or region.</p>
+</div>
+{% endblock %}

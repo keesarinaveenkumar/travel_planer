@@ -1,0 +1,85 @@
+{% from "_macros.html" import ico %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eef6ff">
+  <title>{% block title %}NARADA YATRA — Smart Travel Planner for India{% endblock %}</title>
+  <meta name="description" content="{% block desc %}Smart travel planning across India.{% endblock %}">
+  <link rel="icon" type="image/png" href="{{ asset('blank.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Plus+Jakarta+Sans:wght@400..800&family=Tiro+Devanagari+Hindi&display=swap">
+  <script>
+    document.documentElement.classList.add('js');
+    try { if (sessionStorage.getItem('wipe')) { document.documentElement.classList.add('arriving'); sessionStorage.removeItem('wipe');
+      setTimeout(function () { document.documentElement.classList.remove('arriving'); }, 3000); } } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="{{ asset('css/site.css') }}">
+  <script>window.ALL_PLACES = {{ all_places|tojson }};</script>
+  <script defer src="{{ asset('js/app.js') }}"></script>
+  <script defer src="{{ asset('js/gallery.js') }}"></script>
+  <script defer src="{{ asset('js/plan.js') }}"></script>
+  <script defer src="{{ asset('js/motion.js') }}"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <linearGradient id="gSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe2ae"/><stop offset="1" stop-color="#ff9d5c"/></linearGradient>
+    <linearGradient id="gBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fd0ff"/><stop offset="1" stop-color="#2f7fef"/></linearGradient>
+    <linearGradient id="gTeal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a6f3e8"/><stop offset="1" stop-color="#19b6a6"/></linearGradient>
+    <linearGradient id="gGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f7ff" stop-opacity=".96"/><stop offset="1" stop-color="#a9bdff" stop-opacity=".78"/></linearGradient>
+  </defs></svg>
+
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div id="progress" aria-hidden="true"></div>
+  <div id="wipe" aria-hidden="true"></div>
+  <div id="cursor" aria-hidden="true"></div>
+
+  <header class="site-header" id="site-header">
+    <div class="bar glass">
+      <a href="{{ url_for('index') }}" class="logo" aria-label="NARADA YATRA home">
+        <svg class="logo__mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/><circle cx="12" cy="12" r="2" fill="#fff"/></svg>
+        <span class="logo__text"><b>NARADA YATRA</b><i>नारद यात्रा</i></span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <span class="nav__lens" aria-hidden="true"></span>
+        <a href="{{ url_for('index') }}" class="nav__home {{ 'active' if request.path == '/' }}">Home</a>
+        <a href="{{ url_for('states') }}" class="{{ 'active' if request.path == '/states' }}">States</a>
+        <a href="{{ url_for('index') }}#start" class="btn btn--primary ripple"><span>Plan<span class="nav__long"> a trip</span></span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="page">{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <a href="{{ url_for('index') }}" class="logo"><svg class="logo__mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/><circle cx="12" cy="12" r="2" fill="#fff"/></svg><span class="logo__text"><b>NARADA YATRA</b><i>नारद यात्रा</i></span></a>
+          <p class="muted" style="margin-top:.9rem;max-width:26rem">Day-by-day journeys across every Indian state — with photos of every stop, every dish and every market before you go.</p>
+        </div>
+        <nav aria-label="Explore"><h4>Explore</h4><a href="{{ url_for('index') }}">Home</a><a href="{{ url_for('states') }}">All states &amp; territories</a><a href="{{ url_for('index') }}#start">Plan a trip</a></nav>
+        <nav aria-label="Popular"><h4>Popular</h4>{% for p in ['Jaipur','Munnar','Varanasi','Leh'] %}<a href="{{ url_for('plan', place=p, days=3) }}">{{ p }}</a>{% endfor %}</nav>
+      </div>
+      <div class="footer__big" aria-hidden="true">नारद यात्रा</div>
+      <p class="footer__copy">© {{ year }} NARADA YATRA</p>
+    </div>
+  </footer>
+
+  <button id="to-top" type="button" aria-label="Back to top" class="glass ripple">{{ ico('up') }}</button>
+
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+    <div class="lightbox__backdrop" data-lb-close></div>
+    <button type="button" class="lightbox__close" data-lb-close aria-label="Close viewer">{{ ico('x') }}</button>
+    <button type="button" class="lightbox__nav lightbox__nav--prev" data-lb-prev aria-label="Previous photo">{{ ico('left') }}</button>
+    <button type="button" class="lightbox__nav lightbox__nav--next" data-lb-next aria-label="Next photo">{{ ico('right') }}</button>
+    <figure class="lightbox__stage">
+      <img class="lightbox__img" alt="" draggable="false">
+      <figcaption class="lightbox__cap"><strong class="lightbox__title"></strong><span class="lightbox__credit"></span><span class="lightbox__count"></span></figcaption>
+    </figure>
+    <div class="lightbox__thumbs" aria-label="All photos"></div>
+  </div>
+</body>
+</html>
